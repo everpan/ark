@@ -1,0 +1,224 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" type="text/css" href="../js/easyui/themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="../js/easyui/themes/icon.css">
+	<script type="text/javascript" src="../js/easyui/jquery.min.js"></script>
+	<script type="text/javascript" src="../js/easyui/jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="../js/easyui/datagrid-scrollview.js"></script>
+</head>
+<body>
+<div id="main" class="easyui-layout" data-options="fit:true">
+	<div data-options="region:'west',title:'West',split:true" style="width:260px;">
+		<div id="db"> tree </div>
+	</div>
+  <div data-options="region:'south',title:'South Title',split:true" style="height:300px;">
+		<table id="jobs"></table>
+	</div>
+	<div data-options="region:'center',title:'center title'" style="padding:5px;background:#eee;">
+		<div class="easyui-layout" data-options="fit:true,border:false">
+			<div data-options="region:'north',border:false" style="height:100px;"></div>
+			<div data-options="region:'center',border:false" style="padding:5px;background:#eee;">
+				<div id="tab" class="easyui-tabs" data-options="border:false"></div>
+			</div>
+		<div>
+	</div>
+</div>
+
+
+<script>
+var selectNode;
+function flush(){
+	if(selectNode){
+		_hive.flushDBs(true);
+	}
+}
+function addTab(tabnode){
+	var t = $('#tab').tabs('getTab',tabnode.text);
+	if(t){
+		$('#tab').tabs('select',tabnode.text);
+		return;
+	}
+	$('#tab').tabs('add',{
+		title:tabnode.text,
+		content : tabnode.text + ' content',
+		closable:true,
+		collapsible:true,
+		selected:true,
+		id : tabnode.text
+	});
+}
+function initJobs(){
+	var jobobj = $('#jobs');
+	var cluster = _hive.getAllCluster();
+	for(c in cluster){
+		//alert(c);
+		//jobobj..datagrid('insertRow',
+		cname = cluster[c];
+		var jobids = _hive.getAllJobIDs(cname);
+		for(j in jobids){
+			var jobid = jobids[j];
+			var jobstatus = _hive.getJobStatus(cname,jobid);
+			//jobobj.datagrid('appendRow',jobstatus);
+			jobobj.datagrid('insertRow',{index:0,row:jobstatus});
+		}
+	}
+}
+function sorterFun(a,b){return alert(a + b);(a>b ? 1: -1)}
+$(function(){
+  $('#db').tree({lines:true,onContextMenu: function(e, node){
+
+		e.preventDefault();
+		// select the node
+		$('#db').tree('select', node.target);
+		selectNode = node;
+		// display context menu
+		$('#mm').menu('show', {
+			left: e.pageX,
+			top: e.pageY
+		});
+
+	},
+	onSelect : function(node){
+		addTab(node);
+	}
+});
+  _hive.databaseListChanged.connect(updateDBs);
+  _hive.tableListChanged.connect(updateTables);
+
+  _hive.flushDBs();
+
+	//tab
+	$('#tab').tabs({
+		fit:true
+	});
+	$('#jobs').datagrid({
+		fitColumns:true,rownumbers:true,singleSelect:true,pageSize:20,autoRowHeight:false,
+		//view:scrollview,
+		rownumbers:true,pagination:true,
+		sortOrder:'desc',sortName:'jobName',
+		multiSort:true,
+		columns:[[
+		    {field:'cluster',title:'Cluster',rowspan:2,sortable:true,sortable:true,align:'center'},
+		    {field:'jobId',title:'Job ID',rowspan:2,sortable:true,fixed:true,width:140,align:'center'},
+				{field:'username',title:'User',rowspan:2,sortable:true,align:'center'},
+		    {field:'jobName',title:'Job Name',rowspan:2,sortable:true,fixed:true,width:148,align:'center'},
+
+				{field:'progress',title:'Progress',colspan:4,align:'center'},
+				{field:'slots',title:'Slots',colspan:2,align:'center'},
+				{field:'mems',title:'Mem',colspan:3,align:'center'},
+				{field:'times',title:'Time',colspan:2,align:'center'}
+		],[
+		    {field:'mapProgress',title:'Map',align:'right',sortable:true},
+		    {field:'reduceProgress',title:'Reduce',align:'right',sortable:true},
+		    {field:'cleanupProgress',title:'Cleanup',align:'right'},
+		    {field:'setupProgress',title:'Setup',align:'right'},
+
+				{field:'numUsedSlots',title:'Used',align:'right',sortable:true},
+				{field:'numReservedSlots',title:'Resv',align:'right'},
+
+				{field:'usedMem',title:'Used',align:'right',sortable:true},
+				{field:'reservedMem',title:'Reserved',align:'right'},
+				{field:'neededMem',title:'Needed',align:'right'},
+
+				{field:'startTime',title:'Start',align:'right',sortable:true},
+				{field:'finishTime',title:'Finish',align:'right',sortable:true}
+
+		]],
+		loader:jobsLoader
+	});
+	//initJobs();
+	//$('#main').css('height','100vh');
+})
+function jobsLoader(p,s,e){
+	d = _hive.getJobStatusPage(p.page,p.rows,p.sort,p.order);
+	if(d.total == 0) return false;
+	s(d);
+	return true;
+}
+/*寻找集群根节点*/
+function findClusterNode(cluster){
+  var rootnodes = $('#db').tree('getRoots');
+  for(var n in rootnodes){
+    var node = rootnodes[n];
+    if(node.text == cluster){
+      return node;
+    }
+  }
+  return null;
+}
+/**/
+function findDBNode(cluster,db){
+  var clusterNode = findClusterNode(cluster);
+  if(clusterNode){
+    for(d in clusterNode.children){
+        var node = clusterNode.children[d];
+        if(node.text == db){
+          //easyui buggert : 如果父节点无子节点，且未选中等情况下，target为空
+          if(!node.target){
+            node.target = 'div#' + node.domId;
+          }
+          return node;
+        }
+    }
+  }
+  return null;
+}
+//集群名，数据库列表
+function updateDBs(cluster,dblist){
+  var clusterNode = findClusterNode(cluster);
+  var dbobj = $('#db');
+  if(clusterNode){
+    dbobj.tree('remove',clusterNode.target);
+  }
+  var data = {
+    parent:null,
+    data : [{
+      text : cluster,
+      type : '',
+      state : 'open',
+			type : 0,
+      children : new Array()
+    }]
+  };
+  for(db in dblist){
+      var dbdata = {
+        text : dblist[db],
+        state : 'open',
+				type : 1,
+        children : new Array()
+      };
+      data.data[0].children.push(dbdata);
+  }
+  dbobj.tree('append',data);
+}
+function updateTables(cluster,db,tablist){
+  var dbnode = findDBNode(cluster,db);
+  var dbobj = $('#db');
+  //alert(cluster + '.' + db + ',' + dbnode.text + ',' + dbnode.target + ',' + dbnode.domId);
+  if(dbnode){
+    //remove first
+    var nodes = dbobj.tree('getChildren',dbnode.target);
+    //update or delete ?
+    for(n in nodes){
+      dbobj.tree('remove',nodes[n].target);
+    }
+    var tabnodes = {parent:dbnode.target,data:new Array()};
+    for(t in tablist){
+      var tabnode = {
+        text:tablist[t],
+				type : 2
+      };
+      tabnodes.data.push(tabnode)
+    }
+    dbobj.tree('append',tabnodes);
+	//collapse db
+	dbobj.tree('collapse',dbnode.target);
+  }else{
+    alert('not found db:' + db);
+  }
+}
+</script>
+</body>
+</html>

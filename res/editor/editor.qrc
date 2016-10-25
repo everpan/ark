@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/editor">
+        <file>editor.qrc</file>
+        <file>mode_in.png</file>
+        <file>mode_out.png</file>
+        <file>new.png</file>
+        <file>open.png</file>
+        <file>run.png</file>
+        <file>sall.png</file>
+        <file>save.png</file>
+        <file>woc.ico</file>
+    </qresource>
+</RCC>
