@@ -21,7 +21,7 @@ class ArkEditor : public QsciScintilla
 public:
     //ArkEditor();
     enum ArkEditorLANG{
-        NoLang,
+        NoLang = 0,
         SQL,
         PYTHON,
         BASH

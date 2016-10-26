@@ -90,13 +90,26 @@ void ArkEditor::openFile(const QString& filename){
         //todo error report
         return;
     }
+
+
+    _filename = filename;
+    QFileInfo finfo(_filename);
+    QString suffix = finfo.suffix().toUpper();
+    if(suffix == "SQL"){
+        setLanguage(SQL);
+    }else if( suffix == "PY"){
+        setLanguage(PYTHON);
+    }else if(suffix == "SH"){
+        setLanguage(BASH);
+    }
+
+
     QTextStream in(&file);
     in.setCodec("UTF8");
-
     setText(in.readAll());
     setModified(false);
     file.close();
-    _filename = filename;
+
     emit changeFileName(filename);
 }
 void ArkEditor::saveFile(const QString& filename){
@@ -161,6 +174,7 @@ void ArkEditor::setLanguage(ArkEditorLANG lang){
         break;
     case BASH:
         newlexer = new QsciLexerBash(this);
+        break;
     default:
         return;
         //break;

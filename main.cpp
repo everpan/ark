@@ -4,14 +4,14 @@
 #include <QSplashScreen>
 #include <QTimer>
 
-
+#include "arkbrowser/browsermainwindow.h"
 #include <QDebug>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    MainWindow w;
-
+    //MainWindow w;
+    BrowserMainWindow w;
     QRect maxRect;
     {
         QDesktopWidget desktop;

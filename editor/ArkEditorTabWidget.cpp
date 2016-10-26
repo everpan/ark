@@ -9,6 +9,7 @@ ArkEditorTabWidget::ArkEditorTabWidget(QWidget * parent) : QTabWidget(parent)
     createArkEditor();
 
     connect(this,SIGNAL(tabCloseRequested(int)),SLOT(tabClose(int)));
+    connect(this,SIGNAL(currentChanged(int)),SLOT(currentTabChange(int)));
     checkActionsStatus();
 }
 ArkEditorTabWidget::~ArkEditorTabWidget(){
@@ -40,22 +41,25 @@ void ArkEditorTabWidget::createActions(){
     _runAction->setEnabled(false);
 
     QAction * action;
-    QActionGroup * alignmentGroup = new QActionGroup(this);
+    _languageGroup = new QActionGroup(this);
     _langMenu->addSeparator()->setText("Language");
-    action = _langMenu->addAction("Bash");
-    //action->setSeparator(true);
-    action->setCheckable(true);
-    alignmentGroup->addAction(action);
-    action = _langMenu->addAction("Python");
-    //action->setSeparator(true);
-    action->setCheckable(true);
-    alignmentGroup->addAction(action);
     action = _langMenu->addAction("SQL");
     //action->setSeparator(true);
     action->setCheckable(true);
-    alignmentGroup->addAction(action);
-    alignmentGroup->setExclusive(true);
-    connect(alignmentGroup,SIGNAL(triggered(QAction*)),SLOT(setLanguage(QAction*)));
+    _languageGroup->addAction(action);
+
+    action = _langMenu->addAction("Python");
+    //action->setSeparator(true);
+    action->setCheckable(true);
+    _languageGroup->addAction(action);
+
+    action = _langMenu->addAction("BASH");
+    //action->setSeparator(true);
+    action->setCheckable(true);
+    //action->setUserData();
+    _languageGroup->addAction(action);
+    _languageGroup->setExclusive(true);
+    connect(_languageGroup,SIGNAL(triggered(QAction*)),SLOT(setLanguage(QAction*)));
 }
 ArkEditor* ArkEditorTabWidget::createArkEditor(){
     ArkEditor  * editor = new ArkEditor(this);
@@ -93,6 +97,10 @@ void ArkEditorTabWidget::checkActionsStatus(){
             _saveAllAction->setEnabled(true);
         }else{
             _saveAction->setEnabled(false);
+        }
+        if(editor->getLanguage()>0){
+            //_langMenu->actions().at(ArkEditor::SQL-1)->setChecked(true);
+            _languageGroup->actions().at(ArkEditor::SQL-1)->setChecked(true);
         }
     }
     int countWidget = count();
@@ -189,6 +197,9 @@ void ArkEditorTabWidget::tabClose(int index){
         removeTab(index);
         w->deleteLater();
     }
+    checkActionsStatus();
+}
+void ArkEditorTabWidget::currentTabChange(int){
     checkActionsStatus();
 }
 void ArkEditorTabWidget::closeAllFile(){

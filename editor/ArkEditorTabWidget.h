@@ -36,6 +36,7 @@ private slots:
     void saveFile();
     void saveAllFile();
     void tabClose(int index);
+    void currentTabChange(int);
     void closeAllFile();
     void changeFileName(const QString& filename);
     void modificationChanged(bool);
@@ -46,6 +47,7 @@ public slots:
 private:
     QMenu * _fileMenu,*_langMenu;
     QAction *_saveAction,*_openAction,*_saveAllAction,*_closeAction,*_newAction,*_runAction;
+    QActionGroup * _languageGroup;
 };
 
 #endif // ARKEDITORTABWIDGET_H

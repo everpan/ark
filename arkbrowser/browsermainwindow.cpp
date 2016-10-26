@@ -320,7 +320,7 @@ void BrowserMainWindow::setupMenu()
     QAction *action = fileMenu->addAction(tr("Private &Browsing..."), this, SLOT(slotPrivateBrowsing()));
     action->setCheckable(true);
     action->setChecked(BrowserApplication::instance()->privateBrowsing());
-    connect(BrowserApplication::instance(), SIGNAL(privateBrowsingChanged(bool)), action, SLOT(setChecked(bool)));
+    //connect(BrowserApplication::instance(), SIGNAL(privateBrowsingChanged(bool)), action, SLOT(setChecked(bool)));
     fileMenu->addSeparator();
 
 #if defined(Q_OS_OSX)
