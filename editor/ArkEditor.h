@@ -1,10 +1,10 @@
 #ifndef ARKEDITOR_H
 #define ARKEDITOR_H
 
-#include <Qsci\qsciscintilla.h>
-#include <QSci\QsciLexerSql.h>
-#include <QSci\QsciLexerPython.h>
-#include <QSci\QsciLexerBash.h>
+#include <Qsci/qsciscintilla.h>
+#include <Qsci/qscilexersql.h>
+#include <Qsci/qscilexerpython.h>
+#include <Qsci/qscilexerbash.h>
 #include <QFontMetrics>
 #include <QFont>
 #include <QColor>

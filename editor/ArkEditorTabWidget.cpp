@@ -209,7 +209,7 @@ void ArkEditorTabWidget::closeAllFile(){
  * @param filename
  */
 void ArkEditorTabWidget::changeFileName(const QString& filename){
-    qDebug() << __FUNCDNAME__ << ":" << filename;
+    qDebug() << __FUNCTION__ << ":" << filename;
     ArkEditor * editor = qobject_cast<ArkEditor*>(sender());
     if(editor){
         QFileInfo finfo(filename);

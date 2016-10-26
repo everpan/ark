@@ -16,6 +16,8 @@ CONFIG += release
 TARGET = ark
 TEMPLATE = app
 
+INCLUDEPATH += arkbrowser
+
 
 SOURCES += main.cpp\
         MainWindow.cpp \

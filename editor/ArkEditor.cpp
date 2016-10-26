@@ -132,7 +132,7 @@ void ArkEditor::saveFile(const QString& filename){
     QFile file(_filename);
     if(!file.open(QIODevice::WriteOnly | QIODevice::Text)){
         //todo error report
-        qDebug() << __FILE__ << ":" << __LINE__ << "\t" << __FUNCTIONW__ << " can't open file:" << _filename << " for writeonly";
+        qDebug() << __FILE__ << ":" << __LINE__ << "\t" << __FUNCTION__ << " can't open file:" << _filename << " for writeonly";
         return;
     }
     QTextStream out(&file);
