@@ -3,13 +3,13 @@
 #include <QDesktopWidget>
 #include <QSplashScreen>
 #include <QTimer>
-
+#include "arkbrowser/browserapplication.h"
 #include "arkbrowser/browsermainwindow.h"
 #include <QDebug>
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    BrowserApplication a(argc, argv);
     //MainWindow w;
     BrowserMainWindow w;
     QRect maxRect;
